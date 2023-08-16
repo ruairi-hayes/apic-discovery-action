@@ -5,9 +5,24 @@ inputs:
     description: 'number of milliseconds to wait'
     required: true
     default: '1000'
+  api-host:  
+    description: 'Platform API hostname'
+    required: true
+  api-key:  
+    description: 'APIC API key'
+    required: false
+  provider-org:  
+    description: 'Name of ID of provider org to us'
+    required: true
+  api-file:  
+    description: 'File name of api to add to apiconnect discovery repo'
+    required: true
+
 outputs:
   time: # output will be available to future steps
     description: 'The current time after waiting'
+  action-result:
+    description: 'Result of operation to add apis to apiconnect discovery repo'  
 runs:
   using: 'node16'
   main: 'dist/index.js'
