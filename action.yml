@@ -1,5 +1,5 @@
-name: 'Wait'
-description: 'Wait a designated number of milliseconds'
+name: 'Create or Update Discovered API'
+description: 'Creates or updates the targeted api file'
 inputs:
   milliseconds:  # id of input
     description: 'number of milliseconds to wait'
