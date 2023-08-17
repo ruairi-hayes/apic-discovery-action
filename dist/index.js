@@ -14,13 +14,13 @@ const path = __nccwpck_require__(1017);
 let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file) {
 
     console.log(file)
-    console.log(path.resolve(__dirname,file))
-    const apifileStat = fs.statSync(path.resolve(__dirname,file));
+    console.log(path.resolve(__dirname,"../",file))
+    const apifileStat = fs.statSync(path.resolve(__dirname,"../",file));
     const fileSizeInBytes = apifileStat.size;
 
     // You can pass any of the 3 objects below as body
     //let readStream = fs.createReadStream(file);
-    var stringContent = fs.readFileSync(path.resolve(__dirname,file),'utf8');
+    var stringContent = fs.readFileSync(path.resolve(__dirname,"../",file),'utf8');
     //var bufferContent = fs.readFileSync(file);
 
     var token = await getAuthToken(apihost, apikey);
@@ -60,7 +60,7 @@ let createOrUpdateApiInternal = async function (apihost, token, porg, bodyConten
 }
 
 let getAuthToken = async function (apihost, apikey) {
-    
+
     var clientid = "599b7aef-8841-4ee2-88a0-84d49c4d6ff2";
     var clientsecret = "0ea28423-e73b-47d4-b40e-ddb45c48bb0c"
 
