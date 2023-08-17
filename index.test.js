@@ -21,7 +21,7 @@ test('test runs', () => {
   process.env['INPUT_API_HOST'] = "platform-api.d-h01.apiconnect.dev.automation.ibm.com";
   process.env['INPUT_API_KEY'] = "xxxxxxxxxxxxxxx";
   process.env['INPUT_PROVIDER_ORG'] = "ruairi_h01_b";
-  process.env['INPUT_API_FILE'] = "echo-api.json";
+  process.env['INPUT_API_FILE'] = "apic-discovery-action/echo-api.json";
   const ip = path.join(__dirname, 'index.js');
   const result = cp.execSync(`node ${ip}`, {env: process.env}).toString();
   console.log(result);

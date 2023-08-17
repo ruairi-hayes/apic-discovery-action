@@ -8,13 +8,13 @@ const path = require('path');
 let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file) {
 
     console.log(file)
-    console.log(path.resolve(__dirname,file))
-    const apifileStat = fs.statSync(path.resolve(__dirname,file));
+    console.log(path.resolve(__dirname,"../",file))
+    const apifileStat = fs.statSync(path.resolve(__dirname,"../",file));
     const fileSizeInBytes = apifileStat.size;
 
     // You can pass any of the 3 objects below as body
     //let readStream = fs.createReadStream(file);
-    var stringContent = fs.readFileSync(path.resolve(__dirname,file),'utf8');
+    var stringContent = fs.readFileSync(path.resolve(__dirname,"../",file),'utf8');
     //var bufferContent = fs.readFileSync(file);
 
     var token = await getAuthToken(apihost, apikey);
