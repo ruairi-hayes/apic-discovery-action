@@ -14,17 +14,19 @@ const path = __nccwpck_require__(1017);
 let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file) {
 
     console.log(file)
-    console.log(path.resolve(__dirname,"../",file))
-    const apifileStat = fs.statSync(path.resolve(__dirname,"../",file));
+    console.log(path.resolve(file))
+    const apifileStat = fs.statSync(path.resolve(file));
     const fileSizeInBytes = apifileStat.size;
 
     // You can pass any of the 3 objects below as body
     //let readStream = fs.createReadStream(file);
-    var stringContent = fs.readFileSync(path.resolve(__dirname,"../",file),'utf8');
+    var stringContent = fs.readFileSync(path.resolve(file),'utf8');
     //var bufferContent = fs.readFileSync(file);
 
     var token = await getAuthToken(apihost, apikey);
-    var bodyContent = JSON.stringify({"draft_api": JSON.parse(stringContent)})
+    // bodyContent format needed for draft apis
+    //var bodyContent = JSON.stringify({"draft_api": JSON.parse(stringContent)})
+    var bodyContent = JSON.stringify(JSON.parse(stringContent))
 
     var resp = await createOrUpdateApiInternal(apihost, token, porg, bodyContent, "POST", "")
     if (resp.status === 409){
@@ -36,8 +38,9 @@ let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file) {
 };
 
 let createOrUpdateApiInternal = async function (apihost, token, porg, bodyContent, method, uuid) {
-
-    const resp = await fetch(`https://${apihost}/api/orgs/${porg}/drafts/draft-apis${uuid}?api_type=rest`, {
+    // api for draft apis
+    //const resp = await fetch(`https://${apihost}/api/orgs/${porg}/drafts/draft-apis${uuid}?api_type=rest`, {
+    const resp = await fetch(`https://discovery-api.${apihost}/discovery/orgs/${porg}/discovered-apis`, {
         method,
         headers: {
             "Authorization": "Bearer "+ token,
@@ -66,7 +69,7 @@ let getAuthToken = async function (apihost, apikey) {
 
     var bodyContent=JSON.stringify({"client_id":clientid,"client_secret":clientsecret,"grant_type":"api_key","api_key":apikey,"realm":"provider/default-idp-2"});
 
-    const token = await fetch(`https://${apihost}/api/token`, {
+    const token = await fetch(`https://platform-api.${apihost}/api/token`, {
         method: 'POST',
         headers: {
             "Accept": "application/json",
