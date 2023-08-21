@@ -18,7 +18,9 @@ let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file) {
     //var bufferContent = fs.readFileSync(file);
 
     var token = await getAuthToken(apihost, apikey);
-    var bodyContent = JSON.stringify({"draft_api": JSON.parse(stringContent)})
+    // bodyContent format needed for draft apis
+    //var bodyContent = JSON.stringify({"draft_api": JSON.parse(stringContent)})
+    var bodyContent = JSON.stringify(JSON.parse(stringContent))
 
     var resp = await createOrUpdateApiInternal(apihost, token, porg, bodyContent, "POST", "")
     if (resp.status === 409){
@@ -30,8 +32,9 @@ let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file) {
 };
 
 let createOrUpdateApiInternal = async function (apihost, token, porg, bodyContent, method, uuid) {
-
-    const resp = await fetch(`https://${apihost}/api/orgs/${porg}/drafts/draft-apis${uuid}?api_type=rest`, {
+    // api for draft apis
+    //const resp = await fetch(`https://${apihost}/api/orgs/${porg}/drafts/draft-apis${uuid}?api_type=rest`, {
+    const resp = await fetch(`https://discovery-api.${apihost}/discovery/orgs/${porg}/discovered-apis`, {
         method,
         headers: {
             "Authorization": "Bearer "+ token,
@@ -60,7 +63,7 @@ let getAuthToken = async function (apihost, apikey) {
 
     var bodyContent=JSON.stringify({"client_id":clientid,"client_secret":clientsecret,"grant_type":"api_key","api_key":apikey,"realm":"provider/default-idp-2"});
 
-    const token = await fetch(`https://${apihost}/api/token`, {
+    const token = await fetch(`https://platform-api.${apihost}/api/token`, {
         method: 'POST',
         headers: {
             "Accept": "application/json",
