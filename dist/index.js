@@ -9,9 +9,10 @@ const https = __nccwpck_require__(5687);
 const fs = __nccwpck_require__(7147);
 const path = __nccwpck_require__(1017);
 
+const COLLECTOR_TYPE = "github"
 // TODO chnage to be discovered-apis when available
 
-let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file) {
+let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file, dataSourceLocation) {
 
     console.log(file)
     console.log(path.resolve(file))
@@ -27,8 +28,8 @@ let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file) {
     // bodyContent format needed for draft apis
     //var bodyContent = JSON.stringify({"draft_api": JSON.parse(stringContent)})
 
-    //var bodyContent = JSON.stringify({"api": JSON.parse(stringContent), "data_source: {"source": "", "collector_type": ""}})
-    var bodyContent = JSON.stringify(JSON.parse(stringContent))
+    var bodyContent = JSON.stringify({"api": JSON.parse(stringContent), "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
+    //var bodyContent = JSON.stringify(JSON.parse(stringContent))
 
     var resp = await createOrUpdateApiInternal(apihost, token, porg, bodyContent, "POST", "")
     if (resp.status === 409){
@@ -6823,18 +6824,14 @@ const { getAuthToken, createOrUpdateDiscoveredApi } = __nccwpck_require__(607);
 async function run() {
   try {
 
-    var env = process.env;
-
-    core.info(`process.env ${process.env}`);
-    Object.keys(env).forEach(function(key) {
-      console.log(key + '="' + env[key] +'"');
-    });
+    const repoLocation = process.env['GITHUB_REPOSITORY'];
+    const workspacePath = process.env['GITHUB_WORKSPACE'];
 
     const ms = core.getInput('milliseconds');
     const apihost = core.getInput('api_host');
     const apikey = core.getInput('api_key');
     const porg = core.getInput('provider_org');
-    const apifile = core.getInput('api_file');
+    const apifile = workspacePath + '/' + core.getInput('api_file');
 
     core.info(`Waiting ${ms} milliseconds ...`);
     core.info(`apihost ${apihost}`);
@@ -6842,7 +6839,7 @@ async function run() {
     core.info(`porg ${porg}`);
     core.info(`apifile ${apifile}`);
 
-    var resp = await createOrUpdateDiscoveredApi(apihost, apikey, porg, apifile);
+    var resp = await createOrUpdateDiscoveredApi(apihost, apikey, porg, apifile, repoLocation);
     core.info(`response: status: ${resp.status}, message: ${resp.message[0]}`);
 
     core.debug((new Date()).toTimeString()); // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true

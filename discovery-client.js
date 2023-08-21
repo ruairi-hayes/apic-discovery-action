@@ -3,9 +3,10 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
+const COLLECTOR_TYPE = "github"
 // TODO chnage to be discovered-apis when available
 
-let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file) {
+let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file, dataSourceLocation) {
 
     console.log(file)
     console.log(path.resolve(file))
@@ -21,8 +22,8 @@ let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file) {
     // bodyContent format needed for draft apis
     //var bodyContent = JSON.stringify({"draft_api": JSON.parse(stringContent)})
 
-    //var bodyContent = JSON.stringify({"api": JSON.parse(stringContent), "data_source: {"source": "", "collector_type": ""}})
-    var bodyContent = JSON.stringify(JSON.parse(stringContent))
+    var bodyContent = JSON.stringify({"api": JSON.parse(stringContent), "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
+    //var bodyContent = JSON.stringify(JSON.parse(stringContent))
 
     var resp = await createOrUpdateApiInternal(apihost, token, porg, bodyContent, "POST", "")
     if (resp.status === 409){

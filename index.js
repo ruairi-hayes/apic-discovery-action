@@ -7,18 +7,14 @@ const { getAuthToken, createOrUpdateDiscoveredApi } = require('./discovery-clien
 async function run() {
   try {
 
-    var env = process.env;
-
-    core.info(`process.env ${process.env}`);
-    Object.keys(env).forEach(function(key) {
-      console.log(key + '="' + env[key] +'"');
-    });
+    const repoLocation = process.env['GITHUB_REPOSITORY'];
+    const workspacePath = process.env['GITHUB_WORKSPACE'];
 
     const ms = core.getInput('milliseconds');
     const apihost = core.getInput('api_host');
     const apikey = core.getInput('api_key');
     const porg = core.getInput('provider_org');
-    const apifile = core.getInput('api_file');
+    const apifile = workspacePath + '/' + core.getInput('api_file');
 
     core.info(`Waiting ${ms} milliseconds ...`);
     core.info(`apihost ${apihost}`);
@@ -26,7 +22,7 @@ async function run() {
     core.info(`porg ${porg}`);
     core.info(`apifile ${apifile}`);
 
-    var resp = await createOrUpdateDiscoveredApi(apihost, apikey, porg, apifile);
+    var resp = await createOrUpdateDiscoveredApi(apihost, apikey, porg, apifile, repoLocation);
     core.info(`response: status: ${resp.status}, message: ${resp.message[0]}`);
 
     core.debug((new Date()).toTimeString()); // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true

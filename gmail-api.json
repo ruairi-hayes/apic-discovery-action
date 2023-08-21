@@ -1,43 +1,41 @@
 {
-    "api": {
-        "openapi": "3.0.0",
-        "info": {
-          "title": "gmail",
-          "description": "Optional multiline or single-line description in [CommonMark](http://commonmark.org/help/) or HTML.",
-          "version": "0.1.9"
+    "openapi": "3.0.0",
+    "info": {
+        "title": "gmail",
+        "description": "Optional multiline or single-line desc in [CommonMark](http://commonmark.org/help/) or HTML.",
+        "version": "0.1.9"
+    },
+    "servers": [
+        {
+        "url": "https://climbon.com/trails",
+        "description": "Optional server description, e.g. Main (production) server"
         },
-        "servers": [
-          {
-            "url": "https://climbon.com/trails",
-            "description": "Optional server description, e.g. Main (production) server"
-          },
-          {
-            "url": "https://climbon.com/trails",
-            "description": "Optional server description, e.g. Internal staging server for testing"
-          }
-        ],
-        "paths": {
-          "/users": {
-            "get": {
-              "summary": "Returns a list of users.",
-              "description": "Optional extended description in CommonMark or HTML.",
-              "responses": {
-                "200": {
-                  "description": "A JSON array of user names",
-                  "content": {
-                    "application/json": {
-                      "schema": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        }
-                      }
+        {
+        "url": "https://climbon.com/trails",
+        "description": "Optional server description, e.g. Internal staging server for testing"
+        }
+    ],
+    "paths": {
+        "/users": {
+        "get": {
+            "summary": "Returns a list of users.",
+            "description": "Optional extended description in CommonMark or HTML.",
+            "responses": {
+            "200": {
+                "description": "A JSON array of user names",
+                "content": {
+                "application/json": {
+                    "schema": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
                     }
-                  }
+                    }
                 }
-              }
+                }
             }
-          }
+            }
+        }
         }
     }
 }
