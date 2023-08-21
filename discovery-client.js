@@ -20,6 +20,8 @@ let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file) {
     var token = await getAuthToken(apihost, apikey);
     // bodyContent format needed for draft apis
     //var bodyContent = JSON.stringify({"draft_api": JSON.parse(stringContent)})
+
+    //var bodyContent = JSON.stringify({"api": JSON.parse(stringContent), "data_source: {"source": "", "collector_type": ""}})
     var bodyContent = JSON.stringify(JSON.parse(stringContent))
 
     var resp = await createOrUpdateApiInternal(apihost, token, porg, bodyContent, "POST", "")

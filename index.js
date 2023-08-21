@@ -6,6 +6,9 @@ const { getAuthToken, createOrUpdateDiscoveredApi } = require('./discovery-clien
 // most @actions toolkit packages have async methods
 async function run() {
   try {
+
+    core.info(`process.env ${process.env}`);
+
     const ms = core.getInput('milliseconds');
     const apihost = core.getInput('api_host');
     const apikey = core.getInput('api_key');
