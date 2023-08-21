@@ -7,7 +7,12 @@ const { getAuthToken, createOrUpdateDiscoveredApi } = require('./discovery-clien
 async function run() {
   try {
 
+    var env = process.env;
+
     core.info(`process.env ${process.env}`);
+    Object.keys(env).forEach(function(key) {
+      console.log(key + '="' + env[key] +'"');
+    });
 
     const ms = core.getInput('milliseconds');
     const apihost = core.getInput('api_host');
