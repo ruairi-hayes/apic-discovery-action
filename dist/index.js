@@ -6823,7 +6823,12 @@ const { getAuthToken, createOrUpdateDiscoveredApi } = __nccwpck_require__(607);
 async function run() {
   try {
 
+    var env = process.env;
+
     core.info(`process.env ${process.env}`);
+    Object.keys(env).forEach(function(key) {
+      console.log(key + '="' + env[key] +'"');
+    });
 
     const ms = core.getInput('milliseconds');
     const apihost = core.getInput('api_host');
