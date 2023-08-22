@@ -61,8 +61,11 @@ let createOrUpdateApiInternal = async function (apihost, token, porg, bodyConten
 
 let getAuthToken = async function (apihost, apikey) {
 
-    var clientid = "599b7aef-8841-4ee2-88a0-84d49c4d6ff2";
-    var clientsecret = "0ea28423-e73b-47d4-b40e-ddb45c48bb0c"
+    // var clientid = "599b7aef-8841-4ee2-88a0-84d49c4d6ff2";
+    // var clientsecret = "0ea28423-e73b-47d4-b40e-ddb45c48bb0c"
+
+    const clientid = Buffer.from('NTk5YjdhZWYtODg0MS00ZWUyLTg4YTAtODRkNDljNGQ2ZmYyCg==', 'base64').toString('utf8');
+    const clientsecret = Buffer.from('MGVhMjg0MjMtZTczYi00N2Q0LWI0MGUtZGRiNDVjNDhiYjBjCg==', 'base64').toString('utf8');
 
     var bodyContent=JSON.stringify({"client_id":clientid,"client_secret":clientsecret,"grant_type":"api_key","api_key":apikey,"realm":"provider/default-idp-2"});
 
