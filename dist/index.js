@@ -70,8 +70,8 @@ let getAuthToken = async function (apihost, apikey) {
     // var clientid = "599b7aef-8841-4ee2-88a0-84d49c4d6ff2";
     // var clientsecret = "0ea28423-e73b-47d4-b40e-ddb45c48bb0c"
 
-    const clientid = Buffer.from('NTk5YjdhZWYtODg0MS00ZWUyLTg4YTAtODRkNDljNGQ2ZmYyCg==', 'base64').toString('utf8');
-    const clientsecret = Buffer.from('MGVhMjg0MjMtZTczYi00N2Q0LWI0MGUtZGRiNDVjNDhiYjBjCg==', 'base64').toString('utf8');
+    const clientid = Buffer.from('NTk5YjdhZWYtODg0MS00ZWUyLTg4YTAtODRkNDljNGQ2ZmYy', 'base64').toString('utf8');
+    const clientsecret = Buffer.from('MGVhMjg0MjMtZTczYi00N2Q0LWI0MGUtZGRiNDVjNDhiYjBj', 'base64').toString('utf8');
 
     var bodyContent=JSON.stringify({"client_id":clientid,"client_secret":clientsecret,"grant_type":"api_key","api_key":apikey,"realm":"provider/default-idp-2"});
 
@@ -6833,15 +6833,11 @@ async function run() {
     const ms = core.getInput('milliseconds');
     const apihost = core.getInput('api_host');
     const apikey = core.getInput('api_key');
-    const clientid = core.getInput('clientid');
-    const clientsecret = core.getInput('clientsecret');
     const porg = core.getInput('provider_org');
     const apifile = workspacePath + '/' + core.getInput('api_file');
 
     core.info(`Waiting ${ms} milliseconds ...`);
     core.info(`apihost ${apihost}`);
-    core.info(`clientid ${clientid}`);
-    core.info(`clientsecret ${clientsecret}`);
     core.info(`apikey hegdsqvu${apikey}qsfb£sacghd`);
     core.info(`porg ${porg}`);
     core.info(`apifile ${apifile}`);
