@@ -5,31 +5,25 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const fetch = __nccwpck_require__(467);
-const https = __nccwpck_require__(5687);
 const fs = __nccwpck_require__(7147);
 const path = __nccwpck_require__(1017);
 
 const COLLECTOR_TYPE = "github"
-// TODO chnage to be discovered-apis when available
 
 let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file, dataSourceLocation) {
-
-    console.log(file)
-    console.log(path.resolve(file))
-    const apifileStat = fs.statSync(path.resolve(file));
-    const fileSizeInBytes = apifileStat.size;
 
     // You can pass any of the 3 objects below as body
     //let readStream = fs.createReadStream(file);
     var stringContent = fs.readFileSync(path.resolve(file),'utf8');
     //var bufferContent = fs.readFileSync(file);
-
+    if (!apikey){
+        return {status: 304, message: [`Warning: create Or Update Discovered Api not run as apikey is missing`]}
+    }
     var token = await getAuthToken(apihost, apikey);
     // bodyContent format needed for draft apis
     //var bodyContent = JSON.stringify({"draft_api": JSON.parse(stringContent)})
 
     var bodyContent = JSON.stringify({"api": JSON.parse(stringContent), "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
-    //var bodyContent = JSON.stringify(JSON.parse(stringContent))
 
     var resp = await createOrUpdateApiInternal(apihost, token, porg, bodyContent, "POST", "")
     if (resp.status === 409){
@@ -43,17 +37,15 @@ let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file, d
 let createOrUpdateApiInternal = async function (apihost, token, porg, bodyContent, method, uuid) {
     // api for draft apis
     //const resp = await fetch(`https://${apihost}/api/orgs/${porg}/drafts/draft-apis${uuid}?api_type=rest`, {
-    const resp = await fetch(`https://discovery-api.${apihost}/discovery/orgs/${porg}/discovered-apis`, {
+    const resp = await fetch(`https://discovery-api.${apihost}/discovery/orgs/${porg}/discovered-apis${uuid}`, {
         method,
         headers: {
             "Authorization": "Bearer "+ token,
             "Accept": "application/json",
             "Content-Type": "application/json"
-            //"Content-length": fileSizeInBytes
 
         },
         body: bodyContent
-        //body: readStream // Here, stringContent or bufferContent would also work
     })
     .then(function(res) {
         if(res.status === 201 || res.status === 200){
@@ -66,9 +58,6 @@ let createOrUpdateApiInternal = async function (apihost, token, porg, bodyConten
 }
 
 let getAuthToken = async function (apihost, apikey) {
-
-    // var clientid = "599b7aef-8841-4ee2-88a0-84d49c4d6ff2";
-    // var clientsecret = "0ea28423-e73b-47d4-b40e-ddb45c48bb0c"
 
     const clientid = Buffer.from('NTk5YjdhZWYtODg0MS00ZWUyLTg4YTAtODRkNDljNGQ2ZmYy', 'base64').toString('utf8');
     const clientsecret = Buffer.from('MGVhMjg0MjMtZTczYi00N2Q0LWI0MGUtZGRiNDVjNDhiYjBj', 'base64').toString('utf8');
@@ -92,7 +81,7 @@ let getAuthToken = async function (apihost, apikey) {
     return token;
 };
 
-module.exports = { getAuthToken, createOrUpdateDiscoveredApi }
+module.exports = { createOrUpdateDiscoveredApi }
 
 /***/ }),
 
@@ -6624,23 +6613,6 @@ module.exports.implForWrapper = function (wrapper) {
 
 /***/ }),
 
-/***/ 4258:
-/***/ ((module) => {
-
-let wait = function (milliseconds) {
-  return new Promise((resolve) => {
-    if (typeof milliseconds !== 'number') {
-      throw new Error('milliseconds not a number');
-    }
-    setTimeout(() => resolve("done!"), milliseconds)
-  });
-};
-
-module.exports = wait;
-
-
-/***/ }),
-
 /***/ 2877:
 /***/ ((module) => {
 
@@ -6819,8 +6791,7 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 const core = __nccwpck_require__(2186);
-const wait = __nccwpck_require__(4258);
-const { getAuthToken, createOrUpdateDiscoveredApi } = __nccwpck_require__(607);
+const { createOrUpdateDiscoveredApi } = __nccwpck_require__(607);
 
 
 // most @actions toolkit packages have async methods
@@ -6829,29 +6800,21 @@ async function run() {
 
     const repoLocation = process.env['GITHUB_REPOSITORY'];
     const workspacePath = process.env['GITHUB_WORKSPACE'];
-
-    const ms = core.getInput('milliseconds');
     const apihost = core.getInput('api_host');
     const apikey = core.getInput('api_key');
     const porg = core.getInput('provider_org');
     const apifile = workspacePath + '/' + core.getInput('api_file');
 
-    core.info(`Waiting ${ms} milliseconds ...`);
     core.info(`apihost ${apihost}`);
-    core.info(`apikey hegdsqvu${apikey}qsfb£sacghd`);
     core.info(`porg ${porg}`);
     core.info(`apifile ${apifile}`);
 
     var resp = await createOrUpdateDiscoveredApi(apihost, apikey, porg, apifile, repoLocation);
     core.info(`response: status: ${resp.status}, message: ${resp.message[0]}`);
 
-    core.debug((new Date()).toTimeString()); // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
-    await wait(parseInt(ms));
-    core.info((new Date()).toTimeString());
-
-    core.setOutput('time', new Date().toTimeString());
     core.setOutput('action-result', `response: status: ${resp.status}, message: ${resp.message[0]}`);
-    if (resp.status !== 201 && resp.status !== 200 ){
+    
+    if (![200, 201, 304].includes(resp.status)){
       core.setFailed(resp.message[0]);
     }
   } catch (error) {

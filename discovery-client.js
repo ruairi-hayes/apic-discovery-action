@@ -1,29 +1,23 @@
 const fetch = require('node-fetch');
-const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
 const COLLECTOR_TYPE = "github"
-// TODO chnage to be discovered-apis when available
 
 let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file, dataSourceLocation) {
-
-    console.log(file)
-    console.log(path.resolve(file))
-    const apifileStat = fs.statSync(path.resolve(file));
-    const fileSizeInBytes = apifileStat.size;
 
     // You can pass any of the 3 objects below as body
     //let readStream = fs.createReadStream(file);
     var stringContent = fs.readFileSync(path.resolve(file),'utf8');
     //var bufferContent = fs.readFileSync(file);
-
+    if (!apikey){
+        return {status: 304, message: [`Warning: create Or Update Discovered Api not run as apikey is missing`]}
+    }
     var token = await getAuthToken(apihost, apikey);
     // bodyContent format needed for draft apis
     //var bodyContent = JSON.stringify({"draft_api": JSON.parse(stringContent)})
 
     var bodyContent = JSON.stringify({"api": JSON.parse(stringContent), "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
-    //var bodyContent = JSON.stringify(JSON.parse(stringContent))
 
     var resp = await createOrUpdateApiInternal(apihost, token, porg, bodyContent, "POST", "")
     if (resp.status === 409){
@@ -37,17 +31,15 @@ let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file, d
 let createOrUpdateApiInternal = async function (apihost, token, porg, bodyContent, method, uuid) {
     // api for draft apis
     //const resp = await fetch(`https://${apihost}/api/orgs/${porg}/drafts/draft-apis${uuid}?api_type=rest`, {
-    const resp = await fetch(`https://discovery-api.${apihost}/discovery/orgs/${porg}/discovered-apis`, {
+    const resp = await fetch(`https://discovery-api.${apihost}/discovery/orgs/${porg}/discovered-apis${uuid}`, {
         method,
         headers: {
             "Authorization": "Bearer "+ token,
             "Accept": "application/json",
             "Content-Type": "application/json"
-            //"Content-length": fileSizeInBytes
 
         },
         body: bodyContent
-        //body: readStream // Here, stringContent or bufferContent would also work
     })
     .then(function(res) {
         if(res.status === 201 || res.status === 200){
@@ -60,9 +52,6 @@ let createOrUpdateApiInternal = async function (apihost, token, porg, bodyConten
 }
 
 let getAuthToken = async function (apihost, apikey) {
-
-    // var clientid = "599b7aef-8841-4ee2-88a0-84d49c4d6ff2";
-    // var clientsecret = "0ea28423-e73b-47d4-b40e-ddb45c48bb0c"
 
     const clientid = Buffer.from('NTk5YjdhZWYtODg0MS00ZWUyLTg4YTAtODRkNDljNGQ2ZmYy', 'base64').toString('utf8');
     const clientsecret = Buffer.from('MGVhMjg0MjMtZTczYi00N2Q0LWI0MGUtZGRiNDVjNDhiYjBj', 'base64').toString('utf8');
@@ -86,4 +75,4 @@ let getAuthToken = async function (apihost, apikey) {
     return token;
 };
 
-module.exports = { getAuthToken, createOrUpdateDiscoveredApi }
+module.exports = { createOrUpdateDiscoveredApi }

@@ -1,10 +1,6 @@
-name: 'Create or Update Discovered API'
-description: 'Creates or updates the targeted api file'
+name: 'Create or Update Discovered APIs'
+description: 'Creates or updates the targeted api files'
 inputs:
-  milliseconds:  # id of input
-    description: 'number of milliseconds to wait'
-    required: true
-    default: '1000'
   api-host:
     description: 'Platform API hostname'
     required: true
@@ -19,8 +15,6 @@ inputs:
     required: true
 
 outputs:
-  time: # output will be available to future steps
-    description: 'The current time after waiting'
   action-result:
     description: 'Result of operation to add apis to apiconnect discovery repo'  
 runs:
