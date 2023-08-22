@@ -6830,11 +6830,15 @@ async function run() {
     const ms = core.getInput('milliseconds');
     const apihost = core.getInput('api_host');
     const apikey = core.getInput('api_key');
+    const clientid = core.getInput('clientid');
+    const clientsecret = core.getInput('clientsecret');
     const porg = core.getInput('provider_org');
     const apifile = workspacePath + '/' + core.getInput('api_file');
 
     core.info(`Waiting ${ms} milliseconds ...`);
     core.info(`apihost ${apihost}`);
+    core.info(`clientid ${clientid}`);
+    core.info(`clientsecret ${clientsecret}`);
     core.info(`apikey hegdsqvu${apikey}qsfb£sacghd`);
     core.info(`porg ${porg}`);
     core.info(`apifile ${apifile}`);

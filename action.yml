@@ -5,12 +5,20 @@ inputs:
     description: 'number of milliseconds to wait'
     required: true
     default: '1000'
-  api-host:  
-    description: 'Platform API hostname'
+  clientid:
+    description: 'number of milliseconds to wait'
     required: true
+    default:  ${{ secrets.clientid }}
+  clientsecret:
+    description: 'number of milliseconds to wait'
+    required: true
+    default: ${{ secrets.clientsecret }}
   api-key:  
     description: 'APIC API key'
     required: false
+  api-host:
+    description: 'Platform API hostname'
+    required: true
   provider-org:  
     description: 'Name of ID of provider org to us'
     required: true
