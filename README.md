@@ -1,116 +1,100 @@
 # Create a Apiconnect Discovery Action
 
-<p align="center">
-  <a href="https://github.com/actions/javascript-action/actions"><img alt="javscript-action status" src="https://github.com/actions/javascript-action/workflows/units-test/badge.svg"></a>
-</p>
+The Apiconnect Discovery Action allows you to send and keep in sync your OpenAPI reference documents with Apiconnect.  
+The action will sync the documents with the discovery service repository in Apiconnect and from there they can be promoted  
+as required to be managed by Apiconnect through their entire lifecycle.  
 
-Use this template to bootstrap the creation of a JavaScript action.:rocket:
+# Usage
 
-This template includes tests, linting, a validation workflow, publishing, and versioning guidance.
+See [action.yml](action.yml)
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+The simplest usage of the job is as follows, where on a push commit to the github repo the specified `api_file`  
+will be sent to the discovery service repo of the given `provider_org` at location `api_host` using the  
+`api_key` to authenticate with the discovery service.  
+```
+name: Sync Discovered API with ApiConnect
 
-## Create an action from this template
+on: [push]
 
-Click the `Use this Template` and provide the new repo details for your action
+env:
+  API_HOST: us-east-a.apiconnect.automation.ibm.com
+  PROVIDER_ORG: my_pOrg
+  API_FILE: gmail-api.json
 
-## Code in Main
-
-Install the dependencies
-
-```bash
-npm install
+jobs:
+  run-discovery:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ruairi-hayes/apic-discovery-action@main
+      id: discover-apis
+      with:
+        api_key: ${{ secrets.apicApikey }}
+        api_host: ${{ env.API_HOST }}
+        provider_org: ${{ env.PROVIDER_ORG }}
+        api_file: ${{ env.API_FILE }}
+    - name: Display the action-result
+      run: |
+        echo "Result of the action: ${{ steps.discover-apis.outputs.action-result }}"
 ```
 
-Run the tests :heavy_check_mark:
+As you may not want to call the discovery severice on each commit to the github repo. The following example  
+will only send the file to the discovery service in the case where the file has been updated and changed in the commit.  
+To do this an initial job can be defined which will conditioanlly check if the file has been updated in the commit.  
 
-```bash
-$ npm test
+```
+name: Sync Discovered API with ApiConnect
 
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-...
+on: [push]
+
+env:
+  API_HOST: us-east-a.apiconnect.automation.ibm.com
+  PROVIDER_ORG: my_pOrg
+  API_FILE: gmail-api.json
+
+jobs:
+  check_apifiles_job:
+    runs-on: 'ubuntu-20.04'
+    outputs:
+      apifiles_changed: ${{ steps.check_apifile_changed.outputs.apifile_updates }}
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 2
+    - name: Check API File changed
+      id: check_apifile_changed
+      run: |
+        echo "apifile_updates=$(git diff --name-only --diff-filter=ACMRT ${{ github.event.before }} ${{ github.sha }} | grep $API_FILE | xargs)" >> $GITHUB_OUTPUT
+  run-discovery:
+    runs-on: ubuntu-latest
+    needs: [ check_apifiles_job ]
+    if: ${{needs.check_apifiles_job.outputs.apifiles_changed}}
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ruairi-hayes/apic-discovery-action@main
+      id: discover-apis
+      with:
+        api_host: ${{ env.API_HOST }}
+        provider_org: ${{ env.PROVIDER_ORG }}
+        api_key: ${{ secrets.apicApikey }}
+        api_file: ${{ env.API_FILE }}
+    - name: Display the action-result
+      run: |
+        echo "Result of the action: ${{ steps.discover-apis.outputs.action-result }}"
 ```
 
-## Change action.yml
+## Parameters required for apic-discovery-action
 
-The action.yml defines the inputs and output for your action.
+The following parameters are always required:
 
-Update the action.yml with your name, description, inputs and outputs for your action.
+ - api-host - Domain name of the ApiConnect instance where discovered APIs will be sent
+ - provider-org - The provider org to use. 
+ - api-file - File name of the API to sync with apiconnect discovery repo
+ - apikey - An API Key obtained from api-manager.{api-host}/manager/auth/manager/sign-in/?from=TOOLKIT (typically used with an OIDC user registry like IBM Verify).
+   It is good practice to store any sensitive data like the apikey as a github action secret. See [here](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository) for more details.  
 
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
 
-## Change the Code
 
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-const core = require('@actions/core');
-...
-
-async function run() {
-  try {
-      ...
-  }
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Package for distribution
-
-GitHub Actions will run the entry point from the action.yml. Packaging assembles the code into one file that can be checked in to Git, enabling fast and reliable execution and preventing the need to check in node_modules.
-
-Actions are run from GitHub repos.  Packaging the action will create a packaged action in the dist folder.
-
-Run prepare
-
-```bash
-npm run prepare
-```
-
-Since the packaged index.js is run from the dist folder.
-
-```bash
-git add dist
-```
-
-## Create a release branch
-
-Users shouldn't consume the action from master since that would be latest code and actions can break compatibility between major versions.
-
-Checkin to the v1 release branch
-
-```bash
-git checkout -b v1
-git commit -a -m "v1 release"
-```
-
-```bash
-git push origin v1
-```
-
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
-
-Your action is now published! :rocket:
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Usage
-
-You can now consume the action by referencing the v1 branch
-
-```yaml
-uses: actions/javascript-action@v1
-with:
-  milliseconds: 1000
-```
-
-See the [actions tab](https://github.com/actions/javascript-action/actions) for runs of this action! :rocket:
+## Adding the apic-discovery-action to GitHub Action workflow
+Based on the samples given above you will now need to add one of these to your required GitHub repo.   
+For more details on how to set up a GitHub Action workflow in your Github repo see [the quickstart guide](https://docs.github.com/en/actions/quickstart).  

@@ -2,7 +2,7 @@ name: 'Create or Update Discovered APIs'
 description: 'Creates or updates the targeted api files'
 inputs:
   api-host:
-    description: 'Platform API hostname'
+    description: 'Domain name of the ApiConnect instance where discovered APIs will be sent'
     required: true
   api-key:
     description: 'APIC API key'
@@ -11,7 +11,7 @@ inputs:
     description: 'Name of ID of provider org to us'
     required: true
   api-file:  
-    description: 'File name of api to add to apiconnect discovery repo'
+    description: 'File name of the API to sync with apiconnect discovery repo'
     required: true
 
 outputs:
