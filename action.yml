@@ -13,8 +13,9 @@ inputs:
   api-file:  
     description: 'File name of the API to sync with apiconnect discovery repo'
     required: true
-   resync_check:
+  resync_check:
      description: 'Indicates if a check for datasource existance and resync is required'
+     required: false
 
 outputs:
   action-result:
