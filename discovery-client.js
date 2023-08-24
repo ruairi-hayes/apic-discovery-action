@@ -4,7 +4,7 @@ const path = require('path');
 
 const COLLECTOR_TYPE = "github"
 
-let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file, dataSourceLocation) {
+let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file, dataSourceLocation, dataSourceCheck) {
 
     // You can pass any of the 3 objects below as body
     //let readStream = fs.createReadStream(file);
@@ -14,12 +14,23 @@ let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file, d
         return {status: 304, message: [`Warning: create Or Update Discovered Api not run as apikey is missing`]}
     }
     var token = await getAuthToken(apihost, apikey);
+
+    console.log(" ################# dataSourceCheck #################### ")
+    console.log(dataSourceCheck)
+
+    console.log(stringContent)
+    console.log(token)
+
     // bodyContent format needed for draft apis
     //var bodyContent = JSON.stringify({"draft_api": JSON.parse(stringContent)})
 
     var bodyContent = JSON.stringify({"api": JSON.parse(stringContent), "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
+    console.log(bodyContent)
+
 
     var resp = await createOrUpdateApiInternal(apihost, token, porg, bodyContent, "POST", "")
+    console.log("resp")
+    console.log(resp)
     if (resp.status === 409){
         console.log("API already exists so update it")
         var uuid = resp.message[0].match(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/);
@@ -42,6 +53,7 @@ let createOrUpdateApiInternal = async function (apihost, token, porg, bodyConten
         body: bodyContent
     })
     .then(function(res) {
+        console.log(res)
         if(res.status === 201 || res.status === 200){
             return {status:res.status, message: [`${method} operation on api has been successful`]}
         }

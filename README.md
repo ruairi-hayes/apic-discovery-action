@@ -1,7 +1,7 @@
 # Create a Apiconnect Discovery Action
 
-The Apiconnect Discovery Action allows you to send and keep in sync your OpenAPI reference documents with Apiconnect.  
-The action will sync the documents with the discovery service repository in Apiconnect and from there they can be promoted  
+The Apiconnect Discovery Action allows you to send and keep in sync your OpenAPI reference documents with Apiconnect. 
+The action will sync the documents with the discovery service repository in Apiconnect and from there they can be promoted 
 as required to be managed by Apiconnect through their entire lifecycle.  
 
 # Usage
@@ -39,7 +39,7 @@ jobs:
 ```
 
 As you may not want to call the discovery severice on each commit to the github repo. The following example  
-will only send the file to the discovery service in the case where the file has been updated and changed in the commit.  
+will only send the file to the discovery service in the case where the file has been updated and changed in the commit. 
 To do this an initial job can be defined which will conditioanlly check if the file has been updated in the commit.  
 
 ```

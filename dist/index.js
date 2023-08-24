@@ -10,7 +10,7 @@ const path = __nccwpck_require__(1017);
 
 const COLLECTOR_TYPE = "github"
 
-let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file, dataSourceLocation) {
+let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file, dataSourceLocation, dataSourceCheck) {
 
     // You can pass any of the 3 objects below as body
     //let readStream = fs.createReadStream(file);
@@ -20,12 +20,23 @@ let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file, d
         return {status: 304, message: [`Warning: create Or Update Discovered Api not run as apikey is missing`]}
     }
     var token = await getAuthToken(apihost, apikey);
+
+    console.log(" ################# dataSourceCheck #################### ")
+    console.log(dataSourceCheck)
+
+    console.log(stringContent)
+    console.log(token)
+
     // bodyContent format needed for draft apis
     //var bodyContent = JSON.stringify({"draft_api": JSON.parse(stringContent)})
 
     var bodyContent = JSON.stringify({"api": JSON.parse(stringContent), "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
+    console.log(bodyContent)
+
 
     var resp = await createOrUpdateApiInternal(apihost, token, porg, bodyContent, "POST", "")
+    console.log("resp")
+    console.log(resp)
     if (resp.status === 409){
         console.log("API already exists so update it")
         var uuid = resp.message[0].match(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/);
@@ -48,6 +59,7 @@ let createOrUpdateApiInternal = async function (apihost, token, porg, bodyConten
         body: bodyContent
     })
     .then(function(res) {
+        console.log(res)
         if(res.status === 201 || res.status === 200){
             return {status:res.status, message: [`${method} operation on api has been successful`]}
         }
@@ -6798,22 +6810,26 @@ const { createOrUpdateDiscoveredApi } = __nccwpck_require__(607);
 async function run() {
   try {
 
+    const githubServer = new URL(process.env['GITHUB_SERVER_URL']).hostname;
     const repoLocation = process.env['GITHUB_REPOSITORY'];
+
     const workspacePath = process.env['GITHUB_WORKSPACE'];
     const apihost = core.getInput('api_host');
     const apikey = core.getInput('api_key');
     const porg = core.getInput('provider_org');
     const apifile = workspacePath + '/' + core.getInput('api_file');
+    const datasourceCheck = core.getInput('resync_check');
 
     core.info(`apihost ${apihost}`);
     core.info(`porg ${porg}`);
     core.info(`apifile ${apifile}`);
+    core.info(`datasourceCheck ${datasourceCheck}`);
 
-    var resp = await createOrUpdateDiscoveredApi(apihost, apikey, porg, apifile, repoLocation);
+    var resp = await createOrUpdateDiscoveredApi(apihost, apikey, porg, apifile, githubServer+"/"+repoLocation, datasourceCheck);
     core.info(`response: status: ${resp.status}, message: ${resp.message[0]}`);
 
     core.setOutput('action-result', `response: status: ${resp.status}, message: ${resp.message[0]}`);
-    
+
     if (![200, 201, 304].includes(resp.status)){
       core.setFailed(resp.message[0]);
     }
