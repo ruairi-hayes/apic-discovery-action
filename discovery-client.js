@@ -15,24 +15,17 @@ let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file, d
     }
     var token = await getAuthToken(apihost, apikey);
 
-    console.log(" ################# dataSourceCheck #################### ")
-    console.log(dataSourceCheck)
-
-    console.log(stringContent)
-    console.log(token)
+    if (dataSourceCheck) {
+        await checkAndRegisterDataSource(apihost, token, porg, dataSourceLocation);
+    }
 
     // bodyContent format needed for draft apis
     //var bodyContent = JSON.stringify({"draft_api": JSON.parse(stringContent)})
 
     var bodyContent = JSON.stringify({"api": JSON.parse(stringContent), "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
-    console.log(bodyContent)
-
 
     var resp = await createOrUpdateApiInternal(apihost, token, porg, bodyContent, "POST", "")
-    console.log("resp")
-    console.log(resp)
     if (resp.status === 409){
-        console.log("API already exists so update it")
         var uuid = resp.message[0].match(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/);
         resp = await createOrUpdateApiInternal(apihost, token, porg, bodyContent, "PATCH", "/"+uuid)
     }
@@ -53,12 +46,45 @@ let createOrUpdateApiInternal = async function (apihost, token, porg, bodyConten
         body: bodyContent
     })
     .then(function(res) {
-        console.log(res)
         if(res.status === 201 || res.status === 200){
             return {status:res.status, message: [`${method} operation on api has been successful`]}
         }
         return res.json();
     })
+    return resp
+
+}
+
+let checkAndRegisterDataSource = async function (apihost, token, porg, dataSourceLocation) {
+    // Use this function to perform the datasource registration. If the dataSource doesn't exist create it
+    let resp;
+    try {
+        resp = await fetch(`https://discovery-api.${apihost}/discovery/orgs/${porg}/data-sources/${encodeURIComponent(dataSourceLocation)}`, {
+        method: "GET",
+        headers: {
+            "Authorization": "Bearer "+ token,
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+
+        }
+        })
+        if (resp.status === 404){
+            const bodyContent = JSON.stringify({"title": dataSourceLocation, "collector_type": COLLECTOR_TYPE})
+            resp = await fetch(`https://discovery-api.${apihost}/discovery/orgs/${porg}/data-sources`, {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer "+ token,
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+
+                },
+                body: bodyContent
+            })
+        }
+    } catch (error) {
+        console.log(error)
+        return {status: 500, message: error}
+    }
     return resp
 
 }
