@@ -25,22 +25,23 @@ let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file, d
 
     // bodyContent format needed for draft apis
     //var bodyContent = JSON.stringify({"draft_api": JSON.parse(stringContent)})
-    var bodyContent;
+    var bodyContent, contentType;
     if(fileExtension === '.json'){
         bodyContent = JSON.stringify({"api": JSON.parse(stringContent), "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
+        contentType = 'application/json';
     } else if(fileExtension === '.yaml' || fileExtension === '.yml'){
         bodyContent = JSON.stringify({"api": yaml.load(stringContent), "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
+        contentType = 'application/yaml';
     }
-    console.log(bodyContent);
-    var resp = await createOrUpdateApiInternal(apihost, token, porg, bodyContent, "POST", "")
+    var resp = await createOrUpdateApiInternal(apihost, token, porg, bodyContent, "POST", "", contentType)
     if (resp.status === 409){
         var uuid = resp.message[0].match(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/);
-        resp = await createOrUpdateApiInternal(apihost, token, porg, bodyContent, "PATCH", "/"+uuid)
+        resp = await createOrUpdateApiInternal(apihost, token, porg, bodyContent, "PATCH", "/"+uuid, contentType)
     }
     return resp;
 };
 
-let createOrUpdateApiInternal = async function (apihost, token, porg, bodyContent, method, uuid) {
+let createOrUpdateApiInternal = async function (apihost, token, porg, bodyContent, method, uuid, contentType) {
     // api for draft apis
     //const resp = await fetch(`https://${apihost}/api/orgs/${porg}/drafts/draft-apis${uuid}?api_type=rest`, {
     const resp = await fetch(`https://discovery-api.${apihost}/discovery/orgs/${porg}/discovered-apis${uuid}`, {
@@ -48,7 +49,7 @@ let createOrUpdateApiInternal = async function (apihost, token, porg, bodyConten
         headers: {
             "Authorization": "Bearer "+ token,
             "Accept": "application/json",
-            "Content-Type": "application/json"
+            "Content-Type": contentType
 
         },
         body: bodyContent
