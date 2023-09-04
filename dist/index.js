@@ -16,9 +16,7 @@ let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file, d
     // You can pass any of the 3 objects below as body
     //let readStream = fs.createReadStream(file);
     const fileExtension = path.extname(file);
-    console.log(fileExtension);
     var stringContent = fs.readFileSync(path.resolve(file),'utf8');
-    console.log(stringContent);
     //var bufferContent = fs.readFileSync(file);
     if (!apikey){
         return {status: 304, message: [`Warning: create Or Update Discovered Api not run as apikey is missing`]}
