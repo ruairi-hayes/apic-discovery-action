@@ -8,6 +8,7 @@ let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file, d
 
     // You can pass any of the 3 objects below as body
     //let readStream = fs.createReadStream(file);
+    const fileExtension = path.extname(file);
     var stringContent = fs.readFileSync(path.resolve(file),'utf8');
     //var bufferContent = fs.readFileSync(file);
     if (!apikey){
@@ -21,9 +22,12 @@ let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file, d
 
     // bodyContent format needed for draft apis
     //var bodyContent = JSON.stringify({"draft_api": JSON.parse(stringContent)})
-
-    var bodyContent = JSON.stringify({"api": JSON.parse(stringContent), "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
-
+    var bodyContent;
+    if(fileExtension === '.json'){
+        bodyContent = JSON.stringify({"api": JSON.parse(stringContent), "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
+    } else if(fileExtension === '.yaml' || fileExtension === '.yml'){
+        bodyContent = JSON.stringify({"api": stringContent, "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
+    }
     var resp = await createOrUpdateApiInternal(apihost, token, porg, bodyContent, "POST", "")
     if (resp.status === 409){
         var uuid = resp.message[0].match(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/);
