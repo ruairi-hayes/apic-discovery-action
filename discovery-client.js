@@ -1,6 +1,7 @@
 const fetch = require('node-fetch');
 const fs = require('fs');
 const path = require('path');
+const yaml = require('js-yaml');
 
 const COLLECTOR_TYPE = "github"
 
@@ -26,7 +27,7 @@ let createOrUpdateDiscoveredApi = async function (apihost, apikey, porg, file, d
     if(fileExtension === '.json'){
         bodyContent = JSON.stringify({"api": JSON.parse(stringContent), "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
     } else if(fileExtension === '.yaml' || fileExtension === '.yml'){
-        bodyContent = JSON.stringify({"api": stringContent, "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
+        bodyContent = JSON.stringify({"api": yaml.load(stringContent), "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
     }
     var resp = await createOrUpdateApiInternal(apihost, token, porg, bodyContent, "POST", "")
     if (resp.status === 409){
