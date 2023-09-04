@@ -35,8 +35,8 @@ jobs:
     runs-on: 'ubuntu-20.04'
     # Declare outputs for next jobs
     outputs:
-      apifiles_changed: ${{ steps.check_files_changed.outputs.apifile_updates }}
-      action_changed: ${{ steps.check_files_changed.outputs.action_updates }}
+      apifiles_changed: ${{ steps.check_apifile_changed.outputs.apifile_updates }}
+      action_changed: ${{ steps.check_apifile_changed.outputs.action_updates }}
     steps:
     - uses: actions/checkout@v3
       with:
