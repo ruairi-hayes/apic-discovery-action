@@ -35,14 +35,14 @@ jobs:
     runs-on: 'ubuntu-20.04'
     # Declare outputs for next jobs
     outputs:
-      apifiles_changed: ${{ steps.check_apifile_changed.outputs.apifile_updates }}
-      action_changed: ${{ steps.check_apifile_changed.outputs.action_updates }}
+      apifiles_changed: ${{ steps.check_files_changed.outputs.apifile_updates }}
+      action_changed: ${{ steps.check_files_changed.outputs.action_updates }}
     steps:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 2
     - name: Check API File changed
-      id: check_apifile_changed
+      id: check_files_changed
       run: |
         echo "apifile_updates=$(git diff --name-only --diff-filter=ACMRT ${{ github.event.before }} ${{ github.sha }} | grep $API_FILE | xargs)" >> $GITHUB_OUTPUT
         echo "action_updates=$(git diff --name-only --diff-filter=ACMRT ${{ github.event.before }} ${{ github.sha }} | grep discover-api.yml | xargs)" >> $GITHUB_OUTPUT
