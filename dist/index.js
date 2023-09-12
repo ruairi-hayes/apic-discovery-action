@@ -156,7 +156,7 @@ let getAuthToken = async function (apihost, apikey) {
 
     var bodyContent=JSON.stringify({"client_id":clientid,"client_secret":clientsecret,"grant_type":"api_key","api_key":apikey,"realm":"provider/default-idp-2"});
 
-    const token = await axios.post(`https://api.${apihost}/api/token`, bodyContent,{
+    const token = await axios.post(`https://platform-api.${apihost}/api/token`, bodyContent,{
         headers: {
             "Accept": "application/json",
             "Content-Type": "application/json"
