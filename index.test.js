@@ -12,11 +12,13 @@ test('test runs', () => {
   process.env['INPUT_API_HOST'] = "d-h01.apiconnect.dev.automation.ibm.com";
   process.env['INPUT_API_KEY'] = "";
   process.env['INPUT_PROVIDER_ORG'] = "ruairi_h01_b";
-  //process.env['INPUT_API_FILE'] = "/home/ruairi/git/misc/apic-discovery-action/echo-api.json";
-  process.env['INPUT_API_FILE'] = "gmail-api.json";
+
+  process.env['INPUT_API_FILE'] = ["APIfolder/gmail-api.json","APIfiles/mit-api.json"];
+  // process.env['INPUT_API_FILE'] = ["gmail-api-2.json"];
+  // process.env['INPUT_API_FOLDER'] = ["APIfiles"];
+  // process.env['INPUT_API_FOLDER'] = ["APIfiles","APIfolder"];
   process.env['INPUT_RESYNC_CHECK'] = true;
 
-  //process.env['INPUT_API_FILE'] = "echo-api.json";
   const ip = path.join(__dirname, 'index.js');
   const result = cp.execSync(`node ${ip}`, {env: process.env}).toString();
   console.log(result);
