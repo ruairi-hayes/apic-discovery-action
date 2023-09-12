@@ -55,19 +55,14 @@ let createOrUpdateDiscoveredApi = async function (workspacePath, apihost, apikey
 }
 
 let zipDirectory = async function (dataSourceLocation, workspacePath, apisArray, isFolder, isMultiple){
-    if(isFolder && !isMultiple){
-        const fileList = fs.readdirSync(workspacePath+"/"+ apisArray);
-        for(let element of fileList){
-            await createFormattedAPI(workspacePath + "/" + apisArray + "/" + element, dataSourceLocation, true);
-        }
-    } else if(isFolder && isMultiple){
+    if(isFolder){
         for(let folder of apisArray){
             const fileList = fs.readdirSync(workspacePath + "/" + folder);
             for(let element of fileList){
                 await createFormattedAPI(workspacePath + "/" + folder + "/" + element, dataSourceLocation, true);
             }
         }
-    } else if(!isFolder && isMultiple){
+    } else if(isMultiple){
         for(let element of apisArray){
             await createFormattedAPI(workspacePath + "/" + element, dataSourceLocation, true);
         }
@@ -113,7 +108,7 @@ let createOrUpdateApiInternal = async function (curlUrl, token, bodyContent, met
         })
         return resp
     } catch(err){
-        console.log(err);
+        return {status: 500, message: err}
     }
 }
 
