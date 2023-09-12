@@ -1,4 +1,3 @@
-const fetch = require('node-fetch');
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
@@ -122,26 +121,23 @@ let checkAndRegisterDataSource = async function (apihost, token, porg, dataSourc
     // Use this function to perform the datasource registration. If the dataSource doesn't exist create it
     let resp;
     try {
-        resp = await fetch(`https://discovery-api.${apihost}/discovery/orgs/${porg}/data-sources/${encodeURIComponent(dataSourceLocation)}`, {
-        method: "GET",
+        resp = await axios.get(`https://discovery-api.${apihost}/discovery/orgs/${porg}/data-sources/${encodeURIComponent(dataSourceLocation)}`, {
         headers: {
             "Authorization": "Bearer "+ token,
             "Accept": "application/json",
             "Content-Type": "application/json"
 
         }
-        })
+        });
         if (resp.status === 404){
             const bodyContent = JSON.stringify({"title": dataSourceLocation, "collector_type": COLLECTOR_TYPE})
-            resp = await fetch(`https://discovery-api.${apihost}/discovery/orgs/${porg}/data-sources`, {
-                method: "POST",
+            resp = await axios.post(`https://discovery-api.${apihost}/discovery/orgs/${porg}/data-sources`, bodyContent,{
                 headers: {
                     "Authorization": "Bearer "+ token,
                     "Accept": "application/json",
                     "Content-Type": "application/json"
 
-                },
-                body: bodyContent
+                } 
             })
         }
     } catch (error) {
@@ -159,19 +155,14 @@ let getAuthToken = async function (apihost, apikey) {
 
     var bodyContent=JSON.stringify({"client_id":clientid,"client_secret":clientsecret,"grant_type":"api_key","api_key":apikey,"realm":"provider/default-idp-2"});
 
-    const token = await fetch(`https://platform-api.${apihost}/api/token`, {
-        method: 'POST',
+    const token = await axios.post(`https://api.${apihost}/api/token`, bodyContent,{
         headers: {
             "Accept": "application/json",
             "Content-Type": "application/json"
-
-        },
-        body: bodyContent
+        }
     })
     .then(function(res) {
-        return res.json();
-    }).then(function(json) {
-        return json.access_token
+        return res.data.access_token;
     });
     return token;
 };
