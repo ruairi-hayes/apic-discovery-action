@@ -81,10 +81,10 @@ let createFormattedAPI = async function (apisLocation, dataSourceLocation, isAdd
     const fileExtension = path.extname(apisLocation);
     let stringContent = fs.readFileSync(path.resolve(apisLocation),'utf8');
     if(fileExtension === '.json'){
-        bodyContent = JSON.stringify({"api": JSON.parse(stringContent), "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
+        bodyContent = JSON.stringify({"api": JSON.parse(stringContent), "original_format": "json", "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
         contentType = 'application/json';
     } else if(fileExtension === '.yaml' || fileExtension === '.yml'){
-        bodyContent = JSON.stringify({"api": yaml.load(stringContent), "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
+        bodyContent = JSON.stringify({"api": yaml.load(stringContent), "original_format": "yaml", "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
         contentType = 'application/yaml';
     }
     if(isAddFilesToZip){
@@ -15963,6 +15963,10 @@ const wrapAsync = (asyncExecutor) => {
 const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
   return wrapAsync(async function dispatchHttpRequest(resolve, reject, onDone) {
     let {data, lookup, family} = config;
+    console.log("DATAAAAAAAAAAA : "+data);
+    console.log("DATAAAAAAAAAAA : "+lookup);
+    console.log("DATAAAAAAAAAAA : "+family);
+
     const {responseType, responseEncoding} = config;
     const method = config.method.toUpperCase();
     let isDone;
@@ -16069,7 +16073,7 @@ const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
     }
 
     const headers = AxiosHeaders$1.from(config.headers).normalize();
-
+console.log("HHHHHHHHHHEEEEEAAADERS : "+headers);
     // Set User-Agent (required by some servers)
     // See https://github.com/axios/axios/issues/69
     // User-Agent is specified; handle case where no UA header is desired
@@ -16084,6 +16088,7 @@ const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
 
     // support for spec compliant FormData objects
     if (utils.isSpecCompliantForm(data)) {
+      console.log("Entered1");
       const userBoundary = headers.getContentType(/boundary=([-_\w\d]{10,70})/i);
 
       data = formDataToStream$1(data, (formHeaders) => {
@@ -16095,7 +16100,7 @@ const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
       // support for https://www.npmjs.com/package/form-data api
     } else if (utils.isFormData(data) && utils.isFunction(data.getHeaders)) {
       headers.set(data.getHeaders());
-
+      console.log("Entered2");
       if (!headers.hasContentLength()) {
         try {
           const knownLength = await util__default["default"].promisify(data.getLength).call(data);
@@ -16105,14 +16110,18 @@ const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
         }
       }
     } else if (utils.isBlob(data)) {
+      console.log("Entered3");
       data.size && headers.setContentType(data.type || 'application/octet-stream');
       headers.setContentLength(data.size || 0);
       data = stream__default["default"].Readable.from(readBlob$1(data));
     } else if (data && !utils.isStream(data)) {
+      console.log("Entered4");
       if (Buffer.isBuffer(data)) ; else if (utils.isArrayBuffer(data)) {
         data = Buffer.from(new Uint8Array(data));
       } else if (utils.isString(data)) {
+        console.log('STRING')
         data = Buffer.from(data, 'utf-8');
+        console.log(data);
       } else {
         return reject(new AxiosError(
           'Data after transformation must be a string, an ArrayBuffer, a Buffer, or a Stream',
@@ -16249,8 +16258,10 @@ const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
 
     // Create the request
     req = transport.request(options, function handleResponse(res) {
-      if (req.destroyed) return;
-
+      if (req.destroyed) {
+        console.log("destroyeddestroyeddestroyed"+res);
+        return;}
+console.log("RREEESSPONS"+res);
       const streams = [res];
 
       const responseLength = +res.headers['content-length'];
@@ -16327,6 +16338,9 @@ const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
         config,
         request: lastRequest
       };
+      console.log("statusstatusstatusstatusstatusstatus");
+
+      console.log(response.status);
 
       if (responseType === 'stream') {
         response.data = responseStream;
@@ -16382,6 +16396,7 @@ const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
           } catch (err) {
             reject(AxiosError.from(err, null, config, response.request, response));
           }
+          console.log("RRRRRRRREEEESSSSPONSE : " +response.data);
           settle(resolve, reject, response);
         });
       }

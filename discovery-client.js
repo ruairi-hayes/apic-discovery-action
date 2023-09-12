@@ -75,10 +75,10 @@ let createFormattedAPI = async function (apisLocation, dataSourceLocation, isAdd
     const fileExtension = path.extname(apisLocation);
     let stringContent = fs.readFileSync(path.resolve(apisLocation),'utf8');
     if(fileExtension === '.json'){
-        bodyContent = JSON.stringify({"api": JSON.parse(stringContent), "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
+        bodyContent = JSON.stringify({"api": JSON.parse(stringContent), "original_format": "json", "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
         contentType = 'application/json';
     } else if(fileExtension === '.yaml' || fileExtension === '.yml'){
-        bodyContent = JSON.stringify({"api": yaml.load(stringContent), "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
+        bodyContent = JSON.stringify({"api": yaml.load(stringContent), "original_format": "yaml", "data_source": {"source": dataSourceLocation, "collector_type": COLLECTOR_TYPE}})
         contentType = 'application/yaml';
     }
     if(isAddFilesToZip){
