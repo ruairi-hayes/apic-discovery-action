@@ -13,10 +13,10 @@ test('test runs', () => {
   process.env['INPUT_API_KEY'] = "";
   process.env['INPUT_PROVIDER_ORG'] = "ruairi_h01_b";
 
-  process.env['INPUT_API_FILE'] = ["APIfolder/gmail-api.json","APIfiles/mit-api.json"];
-  // process.env['INPUT_API_FILE'] = ["gmail-api-2.json"];
-  // process.env['INPUT_API_FOLDER'] = ["APIfiles"];
-  // process.env['INPUT_API_FOLDER'] = ["APIfiles","APIfolder"];
+  process.env['INPUT_API_FILES'] = ["APIfolder/gmail-api.json","APIfiles/mit-api.json"];
+  // process.env['INPUT_API_FILES'] = ["gmail-api-2.json"];
+  // process.env['INPUT_API_FOLDERS'] = ["APIfiles"];
+  // process.env['INPUT_API_FOLDERS'] = ["APIfiles","APIfolder"];
   process.env['INPUT_RESYNC_CHECK'] = true;
 
   const ip = path.join(__dirname, 'index.js');

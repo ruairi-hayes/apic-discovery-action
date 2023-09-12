@@ -19,13 +19,13 @@ async function run() {
     core.info(`apihost ${apihost}`);
     core.info(`porg ${porg}`);
     core.info(`datasourceCheck ${datasourceCheck}`);
-    if(core.getInput('api_file')){
-      apisLocation = core.getInput('api_file');
-      core.info(`apifile ${apisLocation}`);
+    if(core.getInput('api_files')){
+      apisLocation = core.getInput('api_files');
+      core.info(`apifiles ${apisLocation}`);
       isFolder = false;
-     } else if(core.getInput('api_folder')){
-      apisLocation = core.getInput('api_folder');
-      core.info(`apifolder ${apisLocation}`);
+     } else if(core.getInput('api_folders')){
+      apisLocation = core.getInput('api_folders');
+      core.info(`apifolders ${apisLocation}`);
       isFolder = true;
      }
 
