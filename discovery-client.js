@@ -11,6 +11,9 @@ const zip = new AdmZip();
 const outputFile = "multipleAPIfiles.zip";
 
 let createOrUpdateDiscoveredApi = async function (workspacePath, apihost, apikey, porg, apisLocation, dataSourceLocation, dataSourceCheck, isFolder) {
+    if(!apisLocation){
+        return {status: 400, message: [`Error: create Or Update Discovered Api not run as API files or API folders parameter is missing or Empty`]}
+    }
     const apisArray = apisLocation.split(",");
     const isMultiple = apisArray.length > 1;
     let resp;
@@ -45,12 +48,6 @@ let createOrUpdateDiscoveredApi = async function (workspacePath, apihost, apikey
             }        
         });
         return resp;
-    } else {
-        let err = {
-            status: 400,
-            message: "The Environemnt variables API_INPUT_FILES or API_INPUT_FOLDER is missing"
-        };
-        throw err;
     }
 }
 
