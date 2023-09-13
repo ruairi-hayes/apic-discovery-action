@@ -31,9 +31,9 @@ let createOrUpdateDiscoveredApi = async function (workspacePath, apihost, apikey
     if(!isFolder && !isMultiple){
         let [bodyContent,contentType] = await createFormattedAPI(apisLocation, dataSourceLocation, false);
         resp = await createOrUpdateApiInternal(curlUrl, token, bodyContent, "POST", contentType)
-    if (resp.status === 409){
-        var uuid = resp.message[0].match(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/);
-        resp = await createOrUpdateApiInternal(curlUrl+"/"+uuid, token, bodyContent, "PATCH", contentType)
+        if (resp.status === 409){
+            var uuid = resp.message[0].match(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/);
+            resp = await createOrUpdateApiInternal(curlUrl+"/"+uuid, token, bodyContent, "PATCH", contentType)
     }
         return resp;
     } else if(isFolder || isMultiple){
@@ -15963,9 +15963,6 @@ const wrapAsync = (asyncExecutor) => {
 const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
   return wrapAsync(async function dispatchHttpRequest(resolve, reject, onDone) {
     let {data, lookup, family} = config;
-    console.log("DATAAAAAAAAAAA : "+data);
-    console.log("DATAAAAAAAAAAA : "+lookup);
-    console.log("DATAAAAAAAAAAA : "+family);
 
     const {responseType, responseEncoding} = config;
     const method = config.method.toUpperCase();
@@ -16073,7 +16070,6 @@ const httpAdapter = isHttpAdapterSupported && function httpAdapter(config) {
     }
 
     const headers = AxiosHeaders$1.from(config.headers).normalize();
-console.log("HHHHHHHHHHEEEEEAAADERS : "+headers);
     // Set User-Agent (required by some servers)
     // See https://github.com/axios/axios/issues/69
     // User-Agent is specified; handle case where no UA header is desired
@@ -16088,7 +16084,6 @@ console.log("HHHHHHHHHHEEEEEAAADERS : "+headers);
 
     // support for spec compliant FormData objects
     if (utils.isSpecCompliantForm(data)) {
-      console.log("Entered1");
       const userBoundary = headers.getContentType(/boundary=([-_\w\d]{10,70})/i);
 
       data = formDataToStream$1(data, (formHeaders) => {
@@ -16100,7 +16095,6 @@ console.log("HHHHHHHHHHEEEEEAAADERS : "+headers);
       // support for https://www.npmjs.com/package/form-data api
     } else if (utils.isFormData(data) && utils.isFunction(data.getHeaders)) {
       headers.set(data.getHeaders());
-      console.log("Entered2");
       if (!headers.hasContentLength()) {
         try {
           const knownLength = await util__default["default"].promisify(data.getLength).call(data);
@@ -16110,18 +16104,14 @@ console.log("HHHHHHHHHHEEEEEAAADERS : "+headers);
         }
       }
     } else if (utils.isBlob(data)) {
-      console.log("Entered3");
       data.size && headers.setContentType(data.type || 'application/octet-stream');
       headers.setContentLength(data.size || 0);
       data = stream__default["default"].Readable.from(readBlob$1(data));
     } else if (data && !utils.isStream(data)) {
-      console.log("Entered4");
       if (Buffer.isBuffer(data)) ; else if (utils.isArrayBuffer(data)) {
         data = Buffer.from(new Uint8Array(data));
       } else if (utils.isString(data)) {
-        console.log('STRING')
         data = Buffer.from(data, 'utf-8');
-        console.log(data);
       } else {
         return reject(new AxiosError(
           'Data after transformation must be a string, an ArrayBuffer, a Buffer, or a Stream',
@@ -16259,9 +16249,7 @@ console.log("HHHHHHHHHHEEEEEAAADERS : "+headers);
     // Create the request
     req = transport.request(options, function handleResponse(res) {
       if (req.destroyed) {
-        console.log("destroyeddestroyeddestroyed"+res);
         return;}
-console.log("RREEESSPONS"+res);
       const streams = [res];
 
       const responseLength = +res.headers['content-length'];
@@ -16338,9 +16326,6 @@ console.log("RREEESSPONS"+res);
         config,
         request: lastRequest
       };
-      console.log("statusstatusstatusstatusstatusstatus");
-
-      console.log(response.status);
 
       if (responseType === 'stream') {
         response.data = responseStream;
@@ -16396,7 +16381,6 @@ console.log("RREEESSPONS"+res);
           } catch (err) {
             reject(AxiosError.from(err, null, config, response.request, response));
           }
-          console.log("RRRRRRRREEEESSSSPONSE : " +response.data);
           settle(resolve, reject, response);
         });
       }

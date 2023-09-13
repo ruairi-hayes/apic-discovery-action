@@ -25,9 +25,9 @@ let createOrUpdateDiscoveredApi = async function (workspacePath, apihost, apikey
     if(!isFolder && !isMultiple){
         let [bodyContent,contentType] = await createFormattedAPI(apisLocation, dataSourceLocation, false);
         resp = await createOrUpdateApiInternal(curlUrl, token, bodyContent, "POST", contentType)
-    if (resp.status === 409){
-        var uuid = resp.message[0].match(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/);
-        resp = await createOrUpdateApiInternal(curlUrl+"/"+uuid, token, bodyContent, "PATCH", contentType)
+        if (resp.status === 409){
+            var uuid = resp.message[0].match(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/);
+            resp = await createOrUpdateApiInternal(curlUrl+"/"+uuid, token, bodyContent, "PATCH", contentType)
     }
         return resp;
     } else if(isFolder || isMultiple){
