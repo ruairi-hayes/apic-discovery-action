@@ -6,6 +6,7 @@ const { createOrUpdateDiscoveredApi } = require('./discovery-client');
 async function run() {
   try {
 
+    let apisLocation,isFolder;
     const githubServer = new URL(process.env['GITHUB_SERVER_URL']).hostname;
     const repoLocation = process.env['GITHUB_REPOSITORY'];
 
@@ -13,15 +14,22 @@ async function run() {
     const apihost = core.getInput('api_host');
     const apikey = core.getInput('api_key');
     const porg = core.getInput('provider_org');
-    const apifile = workspacePath + '/' + core.getInput('api_file');
     const datasourceCheck = core.getInput('resync_check');
 
     core.info(`apihost ${apihost}`);
     core.info(`porg ${porg}`);
-    core.info(`apifile ${apifile}`);
     core.info(`datasourceCheck ${datasourceCheck}`);
+    if(core.getInput('api_files')){
+      apisLocation = core.getInput('api_files');
+      core.info(`apifiles ${apisLocation}`);
+      isFolder = false;
+     } else if(core.getInput('api_folders')){
+      apisLocation = core.getInput('api_folders');
+      core.info(`apifolders ${apisLocation}`);
+      isFolder = true;
+     }
 
-    var resp = await createOrUpdateDiscoveredApi(apihost, apikey, porg, apifile, githubServer+"/"+repoLocation, datasourceCheck);
+    var resp = await createOrUpdateDiscoveredApi(workspacePath, apihost, apikey, porg, apisLocation, githubServer+"/"+repoLocation, datasourceCheck, isFolder);
     core.info(`response: status: ${resp.status}, message: ${resp.message[0]}`);
 
     core.setOutput('action-result', `response: status: ${resp.status}, message: ${resp.message[0]}`);

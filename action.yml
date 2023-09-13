@@ -10,8 +10,11 @@ inputs:
   provider-org:  
     description: 'Name of ID of provider org to us'
     required: true
-  api-file:  
-    description: 'File name of the API to sync with apiconnect discovery repo'
+  api-files:  
+    description: 'One or more file names of the APIs to sync with apiconnect discovery repo'
+    required: true
+  api-folders:  
+    description: 'One or more folder names containing APIs to sync with apiconnect discovery repo'
     required: true
   resync_check:
      description: 'Indicates if a check for datasource existance and resync is required'
