@@ -26,40 +26,53 @@ name: Sync Discovered API with ApiConnect
 on: [pull_request, workflow_dispatch, push]
 
 env:
-  API_HOST: d-h01.apiconnect.dev.automation.ibm.com
-  PROVIDER_ORG: ruairi_h01_b
-  API_FILE: gmail-api.json
+  API_HOST: d-j02.apiconnect.dev.automation.ibm.com
+  PROVIDER_ORG: niraimathi
+  API_FILES: gmail-api.json,gmail-api.yaml,mit-api.json,APIfolder/petstore-exp.json
 
 jobs:
-  check_apifiles_job:
+  check_changes_job:
     runs-on: 'ubuntu-20.04'
     # Declare outputs for next jobs
     outputs:
-      apifiles_changed: ${{ steps.check_files_changed.outputs.apifile_updates }}
-      action_changed: ${{ steps.check_files_changed.outputs.action_updates }}
+      action_changed: ${{ steps.check_workflow_changed.outputs.action_updates }}
+      changed_filename: ${{ steps.changed_filename.outputs.api_file }}
+      apifiles_env: ${{ steps.changed_filename.outputs.apifiles_env }}
+      folder_changed: ${{ steps.check_apifolders_changed.outputs.folder_updates }}
     steps:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 2
-    - name: Check API File changed
-      id: check_files_changed
+    - name: Check Workflow changed
+      id: check_workflow_changed
       run: |
-        echo "apifile_updates=$(git diff --name-only --diff-filter=ACMRT ${{ github.event.before }} ${{ github.sha }} | grep $API_FILE | xargs)" >> $GITHUB_OUTPUT
         echo "action_updates=$(git diff --name-only --diff-filter=ACMRT ${{ github.event.before }} ${{ github.sha }} | grep discover-api.yml | xargs)" >> $GITHUB_OUTPUT
+    - name: Changed API File Name
+      id: changed_filename
+      run: |
+        echo "api_file=$(git diff --name-only --diff-filter=ACMRT ${{ github.event.before }} ${{ github.sha }} | xargs)" >> $GITHUB_OUTPUT
+        echo "apifiles_env=$(echo $API_FILES)" >> $GITHUB_OUTPUT
+    - name: Check API Folders changed
+      id: check_apifolders_changed
+      run: |
+        echo "folder_updates=$(git diff --name-only --diff-filter=ACMRT ${{ github.event.before }} ${{ github.sha }} | grep $API_FOLDERS | xargs)" >> $GITHUB_OUTPUT
   run-discovery:
     runs-on: ubuntu-latest
-    needs: [ check_apifiles_job ]
-    if: ${{ (needs.check_apifiles_job.outputs.apifiles_changed) || (needs.check_apifiles_job.outputs.action_changed) }}
+    needs: [ check_changes_job ]
+    if: ${{ (contains(needs.check_changes_job.outputs.apifiles_env,needs.check_changes_job.outputs.changed_filename)) || (needs.check_changes_job.outputs.action_changed) || (needs.check_changes_job.outputs.folder_changed) }}
     steps:
     - uses: actions/checkout@v3
-    - uses: ruairi-hayes/apic-discovery-action@main
+    - uses: ruairi-hayes/apic-discovery-action@ng/main
       id: discover-apis
       with:
         api_host: ${{ env.API_HOST }}
         provider_org: ${{ env.PROVIDER_ORG }}
         api_key: ${{ secrets.apicApikey }}
-        api_file: ${{ env.API_FILE }}
-        resync_check: ${{ needs.check_apifiles_job.outputs.action_changed && true || false }}
+        if: env.API_FILES
+        api_files: ${{ env.API_FILES }}
+        else if: env.API_FOLDERS
+        api_folders: ${{ env.API_FOLDERS }}
+        resync_check: ${{ needs.check_changes_job.outputs.action_changed && true || false }}
     - name: Display the action-result
       run: |
         echo "Result of the action: ${{ steps.discover-apis.outputs.action-result }}"
@@ -71,7 +84,8 @@ The following parameters are always required:
 
  - api-host - Domain name of the ApiConnect instance where discovered APIs will be sent
  - provider-org - The provider org to use. 
- - api-file - File name of the API to sync with apiconnect discovery repo
+ - api-files - One or more file names of the APIs to sync with apiconnect discovery repo
+ - api-folders - One or more folder names containing APIs to sync with apiconnect discovery repo
  - apikey - An API Key obtained from api-manager.{api-host}/manager/auth/manager/sign-in/?from=TOOLKIT (typically used with an OIDC user registry like IBM Verify).
    It is good practice to store any sensitive data like the apikey as a github action secret. See [here](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository) for more details.  
    For the sample above the github secret should be called `apicApikey` as it will need to match the following templated value ${{ secrets.apicApikey }} 
