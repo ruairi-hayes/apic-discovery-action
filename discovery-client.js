@@ -16,7 +16,7 @@ let createOrUpdateDiscoveredApi = async function (workspacePath, apihost, apikey
     }
     const apisArray = apisLocation.split(",");
     const isMultiple = apisArray.length > 1;
-    let resp;
+    let resp, stateUpdateContent;
     let curlUrl = `https://discovery-api.${apihost}/discovery/orgs/${porg}/discovered-apis`;
     if (!apikey){
         return {status: 304, message: [`Warning: create Or Update Discovered Api not run as apikey is missing`]}
@@ -31,8 +31,7 @@ let createOrUpdateDiscoveredApi = async function (workspacePath, apihost, apikey
         if (resp.status === 409){
             var uuid = resp.message[0].match(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/);
             resp = await createOrUpdateApiInternal(curlUrl+"/"+uuid, token, bodyContent, "PATCH", contentType)
-    }
-        return resp;
+        }
     } else if(isFolder || isMultiple){
         await zipDirectory(dataSourceLocation, workspacePath, apisArray, isFolder, isMultiple);
         const formData = new FormData();
@@ -47,8 +46,15 @@ let createOrUpdateDiscoveredApi = async function (workspacePath, apihost, apikey
                 throw err;
             }        
         });
-        return resp;
     }
+        if(resp.status === 200 || resp.status === 201){
+            stateUpdateContent = JSON.stringify({"state":"enabled","message":""});
+        } else {
+            stateUpdateContent = JSON.stringify({"state":"unhealthy","message":resp.message.message});
+        }
+        datasourceStateUpdate(apihost,stateUpdateContent,token,porg,dataSourceLocation);  
+    return resp;
+
 }
 
 let zipDirectory = async function (dataSourceLocation, workspacePath, apisArray, isFolder, isMultiple){
@@ -105,10 +111,25 @@ let createOrUpdateApiInternal = async function (curlUrl, token, bodyContent, met
         })
         return resp
     } catch(err){
+        console.log(err);
         return {status: 500, message: err}
     }
 }
 
+let datasourceStateUpdate = async function(apihost,bodyContent,token, porg, dataSourceLocation){
+    try{
+        await axios.patch(`https://discovery-api.${apihost}/discovery/orgs/${porg}/data-sources/${encodeURIComponent(dataSourceLocation)}`, bodyContent,{
+            headers: {
+                "Authorization": "Bearer "+ token,
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            } 
+        })
+    } catch(error){
+        console.log(error)
+        return {status: 500, message: error}
+    }
+}
 let checkAndRegisterDataSource = async function (apihost, token, porg, dataSourceLocation) {
     // Use this function to perform the datasource registration. If the dataSource doesn't exist create it
     let resp;
