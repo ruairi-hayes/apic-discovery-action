@@ -53,12 +53,12 @@ let createOrUpdateDiscoveredApi = async function (workspacePath, apihost, apikey
             }        
         });
     }
-        if(resp.status === 200 || resp.status === 201){
-            stateUpdateContent = JSON.stringify({"state":"enabled","message":""});
-        } else {
-            stateUpdateContent = JSON.stringify({"state":"unhealthy","message":resp.message.message});
-        }
-        datasourceStateUpdate(apihost,stateUpdateContent,token,porg,dataSourceLocation);  
+    if(resp.status === 200 || resp.status === 201){
+        stateUpdateContent = JSON.stringify({"state":"enabled","message":""});
+    } else {
+        stateUpdateContent = JSON.stringify({"state":"unhealthy","message":resp.message.message});
+    }
+    datasourceStateUpdate(apihost,stateUpdateContent,token,porg,dataSourceLocation);
     return resp;
 
 }
@@ -170,7 +170,7 @@ let checkAndRegisterDataSource = async function (apihost, token, porg, dataSourc
 let getAuthToken = async function (apihost, apikey) {
 
     var bodyContent=JSON.stringify({"grant_type":"api_key","api_key":apikey,"realm":"provider/default-idp-2"});
-    const token = await axios.post(`https://localhost:3083/discovery/token`, bodyContent,{
+    const token = await axios.post(`https://discovery-api.${apihost}/discovery/token`, bodyContent,{
         headers: {
             "Accept": "application/json",
             "Content-Type": "application/json"
