@@ -169,12 +169,8 @@ let checkAndRegisterDataSource = async function (apihost, token, porg, dataSourc
 
 let getAuthToken = async function (apihost, apikey) {
 
-    const clientid = Buffer.from('NTk5YjdhZWYtODg0MS00ZWUyLTg4YTAtODRkNDljNGQ2ZmYy', 'base64').toString('utf8');
-    const clientsecret = Buffer.from('MGVhMjg0MjMtZTczYi00N2Q0LWI0MGUtZGRiNDVjNDhiYjBj', 'base64').toString('utf8');
-
-    var bodyContent=JSON.stringify({"client_id":clientid,"client_secret":clientsecret,"grant_type":"api_key","api_key":apikey,"realm":"provider/default-idp-2"});
-
-    const token = await axios.post(`https://platform-api.${apihost}/api/token`, bodyContent,{
+    var bodyContent=JSON.stringify({"grant_type":"api_key","api_key":apikey,"realm":"provider/default-idp-2"});
+    const token = await axios.post(`https://localhost:3083/discovery/token`, bodyContent,{
         headers: {
             "Accept": "application/json",
             "Content-Type": "application/json"
