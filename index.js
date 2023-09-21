@@ -5,7 +5,7 @@ const { createOrUpdateDiscoveredApi } = require('./discovery-client');
 // most @actions toolkit packages have async methods
 async function run() {
   try {
-
+    console.log(process);
     let apisLocation,isFolder;
     const githubServer = new URL(process.env['GITHUB_SERVER_URL']).hostname;
     const repoLocation = process.env['GITHUB_REPOSITORY'];
