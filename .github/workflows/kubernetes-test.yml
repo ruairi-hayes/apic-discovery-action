@@ -1,0 +1,39 @@
+name: Simple K8s Deploy
+
+on: [workflow_dispatch]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: azure/setup-kubectl@v3
+      
+      - name: Deploy
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG }}
+        run: |
+          echo "$KUBE_CONFIG_DATA" > kubeconfig
+          export KUBECONFIG=./kubeconfig
+          
+          kubectl apply -f - <<EOF
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: test-app
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: test
+            template:
+              metadata:
+                labels:
+                  app: test
+              spec:
+                containers:
+                - name: nginx
+                  image: nginx:alpine
+          EOF
+          
+          kubectl get deployment test-app
+
